@@ -1,0 +1,129 @@
+create view info_bayar as select b.nis,b.nama,p.notrans,k.idkelas,s.smtr,p.bulan,p.tanggal,keu.batas,keu.jenis,keu.biaya,keu.ta,p.teller,keu.kelas from biodata b,pembayaran p,keuangan keu,semester s, kelas k where b.nis=p.nis and b.nis=k.nis and p.idsmtr=s.idsmtr and p.idkeu=keu.idkeu and keu.kelas=substr(k.idkelas,1,2) and keu.ta=k.ta
+
+
+select b.NIS, b.nama, b.JK,b.Tmplahir,b.TglLahir,b.NoIjasah,b.NoSKHUN,b.Agama,b.Status,b.	Alamat,b.Kodepos,b.NoTelp,b.Cita,b.Hobi,b.	Jarak,b.Transportasi,b.Angkatan,b,idjurusan,b.Url,b.IdUser,o.NmIbu,o.NmAyah,o.PkrjAyah,o.PkrjIbu,o.PendAyah,o.PendIbu,o.GolGaji,o.NmWali,o.AlamatWali,o.NoTelpWali ,a.Sekolah,a.Kec,a.Kab,a.AlamatSekolah from biodata b, ortu o, asalsekolah a,kelas k where b.nis=o.nis and b.nis=a.nis and b.nis=k.nis
+
+select b.NIS, b.nama, b.JK, b.Tmplahir, b.TglLahir, b.NoIjasah, b.NoSKHUN, b.Agama, b.Status, b.Alamat, b.Kodepos, b.NoTelp, b.Cita, b.Hobi, b.Jarak, b.Transportasi, b.Angkatan, b.IdJurusan, b.url, b.IdUser, o.NmIbu, o.NmAyah, o.PkrjAyah, o.PkrjIbu, o.PendAyah, o.PendIbu, o.GolGaji, o.NmWali, o.AlamatWali, o.NoTelpWali, a.Sekolah, a.Kec, a.Kab, a.AlamatSekolah from biodata b, ortu o, asalsekolah a where b.nis=o.nis and b.nis=a.nis 
+
+alter view info_nilai as select b.nis,b.nama,kel.idkelas,s.Smtr,kel.ta,m.mapel,t.uts,t.uas,t.nilai,m.kkm from biodata b,transkip t,semester s,mapel m, kelas kel where b.nis=t.nis and b.nis=kel.nis and m.kodemapel=t.kodemapel and  t.idsmtr=s.idsmtr and t.idkelas=kel.idkelas and t.ta=kel.ta
+
+alter view info_absensi as select a.idabsensi, b.nis,b.nama,kel.idkelas,s.smtr,a.ta,a.bulan,a.pertemuan,a.kehadiran,a.s,a.i,a.a from biodata b,kelas kel,absensi a, semester s where b.nis=a.nis and b.nis=kel.nis and a.idsmtr=s.idsmtr and a.ta=kel.ta and a.idkelas=kel.idkelas
+
+create view info_staff  as select a.id, s.* from ad_login a,staff s where a.nik=s.nik
+create view info_konten as SELECT b.*,s.nama FROM berita b,staff s where b.nik=s.nik
+
+create view info_mapel as SELECT m.*,k.kategori,j.program FROM mapel m,jurusan j,kategori k where m.IdJurusan=j.IdJurusan and k.IdKategori=m.IdKategori
+
+
+						
+CREATE trigger update_nis before UPDATE ON biodata FOR each ROW 
+BEGIN 
+UPDATE userlogin SET Username= new.NIS WHERE Username= old.NIS;
+UPDATE transkip SET NIS= new.NIS WHERE NIS= old.NIS;
+UPDATE pembayaran SET NIS= new.NIS WHERE NIS= old.NIS;
+UPDATE ortu SET NIS= new.NIS WHERE NIS= old.NIS;
+UPDATE kelas SET NIS= new.NIS WHERE NIS= old.NIS;
+UPDATE asalsekolah SET NIS= new.NIS WHERE NIS= old.NIS;
+UPDATE absensi SET NIS= new.NIS WHERE NIS= old.NIS;
+END | 
+
+CREATE trigger hapus_nis after DELETE ON biodata FOR each ROW 
+BEGIN 
+DELETE FROM userlogin WHERE Username= old.NIS;
+DELETE FROM transkip WHERE NIS= old.NIS;
+DELETE FROM pembayaran WHERE NIS= old.NIS;
+DELETE FROM ortu WHERE NIS= old.NIS;
+DELETE FROM kelas WHERE NIS= old.NIS;
+DELETE FROM asalsekolah WHERE NIS= old.NIS;
+DELETE FROM absensi WHERE NIS= old.NIS;
+END | 
+
+CREATE trigger update_kelas before UPDATE ON dafkelas FOR each ROW 
+BEGIN 
+UPDATE kelas SET IdKelas= new.IdKelas WHERE IdKelas= old.IdKelas;
+UPDATE jadwal SET IdKelas= new.IdKelas WHERE IdKelas= old.IdKelas;
+END | 
+
+CREATE trigger update_jurusan before UPDATE ON jurusan FOR each ROW 
+BEGIN 
+UPDATE mapel SET IdJurusan= new.IdJurusan WHERE IdJurusan= old.IdJurusan;
+UPDATE biodata SET IdJurusan= new.IdJurusan WHERE IdJurusan= old.IdJurusan;
+END | 
+
+CREATE trigger hapus_jurusan after DELETE ON jurusan FOR each ROW 
+BEGIN 
+DELETE FROM mapel WHERE IdJurusan= old.IdJurusan;
+DELETE FROM biodata WHERE IdJurusan= old.IdJurusan;
+END | 
+
+CREATE trigger update_kategori before UPDATE ON kategori FOR each ROW 
+BEGIN 
+UPDATE mapel SET IdKategori= new.IdKategori WHERE IdKategori= old.IdKategori;
+END | 
+
+CREATE trigger hapus_kategori after DELETE ON kategori FOR each ROW 
+BEGIN 
+DELETE FROM mapel WHERE IdKategori= old.IdKategori;
+END | 
+
+CREATE trigger update_mapel before UPDATE ON mapel FOR each ROW 
+BEGIN 
+UPDATE transkip SET KodeMapel= new.KodeMapel WHERE KodeMapel= old.KodeMapel;
+UPDATE pengajar SET KodeMapel= new.KodeMapel WHERE KodeMapel= old.KodeMapel;
+UPDATE jadwal SET KodeMapel= new.KodeMapel WHERE KodeMapel= old.KodeMapel;
+END | 
+
+CREATE trigger hapus_mapel after DELETE ON mapel FOR each ROW 
+BEGIN 
+DELETE FROM transkip WHERE KodeMapel= old.KodeMapel;
+DELETE FROM pengajar WHERE KodeMapel= old.KodeMapel;
+DELETE FROM jadwal WHERE KodeMapel= old.KodeMapel;
+END | 
+
+CREATE trigger update_semester before UPDATE ON semester FOR each ROW 
+BEGIN 
+UPDATE pembayaran SET IdSmtr= new.IdSmtr WHERE IdSmtr= old.IdSmtr;
+UPDATE absensi SET IdSmtr= new.IdSmtr WHERE IdSmtr= old.IdSmtr;
+UPDATE transkip SET IdSmtr= new.IdSmtr WHERE IdSmtr= old.IdSmtr;
+END | 
+
+CREATE trigger hapus_semester after DELETE ON semester FOR each ROW 
+BEGIN 
+DELETE FROM pembayaran  WHERE IdSmtr=old.IdSmtr;
+DELETE FROM absensi WHERE IdSmtr=old.IdSmtr;
+DELETE FROM transkip WHERE IdSmtr=old.IdSmtr;
+END | 
+
+CREATE trigger update_staff before UPDATE ON staff FOR each ROW 
+BEGIN 
+UPDATE ad_login SET nik= new.nik WHERE nik= old.nik;
+UPDATE pengajar  SET nik= new.nik WHERE nik= old.nik;
+UPDATE berita SET nik= new.nik WHERE nik= old.nik;
+END | 
+
+CREATE trigger hapus_staff after DELETE ON staff FOR each ROW 
+BEGIN 
+DELETE FROM ad_login WHERE nik=old.nik;
+DELETE FROM pengajar WHERE nik=old.nik;
+DELETE FROM berita WHERE nik=old.nik;
+END | 
+
+CREATE trigger update_ta before UPDATE ON ta FOR each ROW 
+BEGIN 
+UPDATE pembayaran SET ta= new.ta WHERE ta=old.ta;
+UPDATE kelas SET ta= new.ta WHERE ta=old.ta;
+UPDATE transkip SET ta= new.ta WHERE ta=old.ta;
+UPDATE absensi SET ta= new.ta WHERE ta=old.ta;
+UPDATE keuangan SET ta= new.ta WHERE ta=old.ta;
+END | 
+
+CREATE trigger hapus_ta after DELETE ON ta FOR each ROW 
+BEGIN 
+DELETE FROM kelas WHERE ta=old.ta;
+DELETE FROM pembayaran WHERE ta=old.ta;
+DELETE FROM transkip WHERE ta=old.ta;
+DELETE FROM absensi WHERE ta=old.ta;
+DELETE FROM kelas WHERE ta=old.ta;
+END | 
+
+select m.KodeMapel, m.Mapel, m.Kelas, m.IdJurusan, s.nama from mapel m, pengajar p, staff s where m.KodeMapel=p.KodeMapel and s.nik=p.nik

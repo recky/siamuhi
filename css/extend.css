@@ -1,0 +1,30 @@
+
+.box-wrap {
+    border-radius: 5px;
+    background: #FFF;
+    border-bottom: solid 3px #DDD;
+    box-shadow: 0 0 0 1px #EEE;
+}
+
+.box-heading {
+    background-color: #FAFAFA;
+    padding: 15px;
+    border-bottom: solid 1px #ccc;
+    border-radius: 5px 5px 0 0;
+}
+
+.box-heading h4 {
+    margin: 0;
+}
+
+.box-inner {
+    padding: 15px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+h3.bootstro {
+    margin: 0;
+}
